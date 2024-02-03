@@ -1,0 +1,27 @@
+syntax= "proto3";
+
+package user;
+
+import "user_enum.proto";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/way11229/tinder_matching";
+
+message User {
+  string id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "user id",
+  }];
+  string name = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "user name",
+  }];
+  uint32 height = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "user height",
+  }];
+  UserGender gender = 4 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "user gender",
+  }];
+  uint32 remain_number_of_dates = 5 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "remain number of dates",
+  }];
+}

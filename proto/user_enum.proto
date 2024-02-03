@@ -1,0 +1,10 @@
+syntax= "proto3";
+
+package user;
+
+option go_package = "github.com/way11229/tinder_matching";
+
+enum UserGender {
+  USER_GENDER_MALE = 0;
+  USER_GENDER_FEMALE = 1;
+}

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package user;
+
+import "user_schema.proto";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/way11229/tinder_matching";
+
+message ListMatchesByIdRequest {
+  string user_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "user id",
+    required: ["user_id"],
+  }];
+  uint32 limit = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "search limit, default 10",
+  }];
+}
+
+message ListMatchesByIdResponse {
+  repeated User matches = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "matches of the user",
+  }];
+}

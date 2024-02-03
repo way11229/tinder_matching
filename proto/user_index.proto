@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package user;
+
+import "user_create_user_and_list_matches.proto";
+import "user_delete_user_by_id.proto";
+import "user_list_matches_by_id.proto";
+
+// basic
+import "google/protobuf/empty.proto";
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/way11229/tinder_matching";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    host: "localhost:8080"
+    base_path: ""
+    info: {
+        title: "Tinder Matching Service API";
+        version: "1.0";
+        contact: {
+            name: "Way";
+            email: "way11229@gmail.com";
+        };
+    };
+};
+
+service UserService {
+  rpc CreateUserAndListMatches(CreateUserAndListMatchesRequest) returns (CreateUserAndListMatchesResponse) {
+    option (google.api.http) = {
+      post: "/users"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: [ "UserService" ]
+      summary: "add single user and list matches";
+      description: "Add a new user to the matching system and find any possible matches for the new user.";
+    };
+  }
+
+  rpc DeleteUserById(DeleteUserByIdRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/users/{user_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: [ "UserService" ]
+      summary: "remove single user";
+      description: "Remove a user from the matching system so that the user cannot be matched anymore.";
+    };
+  }
+
+  rpc ListMatchesById(ListMatchesByIdRequest) returns (ListMatchesByIdResponse) {
+    option (google.api.http) = {
+      get: "/users/{user_id}/matches"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: [ "UserService" ]
+      summary: "list matches of the user";
+      description: "Find the most N possible matched single people, where N is a request parameter.";
+    };
+  }
+}

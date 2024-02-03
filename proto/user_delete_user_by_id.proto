@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package user;
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/way11229/tinder_matching";
+
+message DeleteUserByIdRequest {
+  string user_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "user id",
+    required: ["user_id"],
+  }];
+}
