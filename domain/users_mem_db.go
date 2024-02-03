@@ -7,32 +7,38 @@ import (
 )
 
 type UsersMemDbCreate struct {
-	Name          string
-	Height        uint32
-	Gender        UserGender
-	NumberOfDates uint32
-	DateStatus    bool
+	Name                string
+	Height              uint32
+	Gender              UserGender
+	RemainNumberOfDates uint32
 }
 
 type UsersMemDbUpdateById struct {
-	Id            uuid.UUID
-	Name          string
-	Height        uint32
-	Gender        UserGender
-	NumberOfDates uint32
-	DateStatus    bool
+	Id                  uuid.UUID
+	Name                string
+	Height              uint32
+	Gender              UserGender
+	RemainNumberOfDates uint32
 }
 
-type UsersMemDbSearch struct {
-	Gender           *UserGender
-	DateStatus       *bool
-	HeightUpperBound *uint
-	HeightLowerBound *uint
+type UsersMemDbHeightSearch struct {
+	Limit *int
+	Bound uint32
 }
 
 type UsersMemDB interface {
 	Create(ctx context.Context, input *UsersMemDbCreate) (uuid.NullUUID, error)
-	GetById(ctx context.Context, id uuid.UUID) (*User, error)
 	UpdateById(ctx context.Context, input *UsersMemDbUpdateById) error
-	ListBySearch(ctx context.Context, search *UsersMemDbSearch) ([]*User, error)
+	DeleteById(ctx context.Context, id uuid.UUID) error
+	GetById(ctx context.Context, id uuid.UUID) (*User, error)
+	ListByHeightUpperBoundWithoutEqual(ctx context.Context, search *UsersMemDbHeightSearch) ([]*User, error)
+	ListByHeightLowerBoundWithoutEqual(ctx context.Context, search *UsersMemDbHeightSearch) ([]*User, error)
+}
+
+type UsersMaleMemDB interface {
+	UsersMemDB
+}
+
+type UsersFemaleMemDB interface {
+	UsersMemDB
 }
