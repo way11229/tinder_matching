@@ -93,12 +93,12 @@
       "get": {
         "summary": "list matches of the user",
         "description": "Find the most N possible matched single people, where N is a request parameter.",
-        "operationId": "UserService_ListMatchesById",
+        "operationId": "UserService_ListMatchesByUserId",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/userListMatchesByIdResponse"
+              "$ref": "#/definitions/userListMatchesByUserIdResponse"
             }
           },
           "default": {
@@ -206,7 +206,7 @@
         }
       }
     },
-    "userListMatchesByIdResponse": {
+    "userListMatchesByUserIdResponse": {
       "type": "object",
       "properties": {
         "matches": {

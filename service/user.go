@@ -51,7 +51,7 @@ func (u *UserService) CreateUserAndListMatches(ctx context.Context, input *domai
 
 		newUserId = resp.UUID
 	default:
-		return nil, domain.ErrorUserGenderInvalidate
+		return nil, domain.ErrorUserGenderInvalid
 	}
 
 	matches, err := u.listMatchesByUserId(ctx, &listMatchesByUserIdType{
@@ -93,7 +93,7 @@ func (u *UserService) DeleteUserById(ctx context.Context, id uuid.UUID) error {
 
 func (u *UserService) ListMatchesByUserId(ctx context.Context, input *domain.UserListMatchesByUserId) ([]*domain.User, error) {
 	limit := input.Limit
-	if limit == 0 {
+	if limit <= 0 {
 		limit = domain.SEARCH_LIMIT_DEFAULT
 	}
 
@@ -116,15 +116,15 @@ func (u *UserService) ListMatchesByUserId(ctx context.Context, input *domain.Use
 
 func (u *UserService) validateCreateUserData(input *domain.CreateUser) error {
 	if !u.validateUserName(input.Name) {
-		return domain.ErrorUserNameInvalidate
+		return domain.ErrorUserNameInvalid
 	}
 
 	if !u.validateUserHeight(input.Height) {
-		return domain.ErrorUserHeightInvalidate
+		return domain.ErrorUserHeightInvalid
 	}
 
 	if !u.validateUserNumberOfWantedDates(input.RemainNumberOfDates) {
-		return domain.ErrorUserNumberOfWantedDatesInvalidate
+		return domain.ErrorUserNumberOfWantedDatesInvalid
 	}
 
 	return nil

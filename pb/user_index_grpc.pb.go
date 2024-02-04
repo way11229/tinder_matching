@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	UserService_CreateUserAndListMatches_FullMethodName = "/user.UserService/CreateUserAndListMatches"
 	UserService_DeleteUserById_FullMethodName           = "/user.UserService/DeleteUserById"
-	UserService_ListMatchesById_FullMethodName          = "/user.UserService/ListMatchesById"
+	UserService_ListMatchesByUserId_FullMethodName      = "/user.UserService/ListMatchesByUserId"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -31,7 +31,7 @@ const (
 type UserServiceClient interface {
 	CreateUserAndListMatches(ctx context.Context, in *CreateUserAndListMatchesRequest, opts ...grpc.CallOption) (*CreateUserAndListMatchesResponse, error)
 	DeleteUserById(ctx context.Context, in *DeleteUserByIdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	ListMatchesById(ctx context.Context, in *ListMatchesByIdRequest, opts ...grpc.CallOption) (*ListMatchesByIdResponse, error)
+	ListMatchesByUserId(ctx context.Context, in *ListMatchesByUserIdRequest, opts ...grpc.CallOption) (*ListMatchesByUserIdResponse, error)
 }
 
 type userServiceClient struct {
@@ -60,9 +60,9 @@ func (c *userServiceClient) DeleteUserById(ctx context.Context, in *DeleteUserBy
 	return out, nil
 }
 
-func (c *userServiceClient) ListMatchesById(ctx context.Context, in *ListMatchesByIdRequest, opts ...grpc.CallOption) (*ListMatchesByIdResponse, error) {
-	out := new(ListMatchesByIdResponse)
-	err := c.cc.Invoke(ctx, UserService_ListMatchesById_FullMethodName, in, out, opts...)
+func (c *userServiceClient) ListMatchesByUserId(ctx context.Context, in *ListMatchesByUserIdRequest, opts ...grpc.CallOption) (*ListMatchesByUserIdResponse, error) {
+	out := new(ListMatchesByUserIdResponse)
+	err := c.cc.Invoke(ctx, UserService_ListMatchesByUserId_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (c *userServiceClient) ListMatchesById(ctx context.Context, in *ListMatches
 type UserServiceServer interface {
 	CreateUserAndListMatches(context.Context, *CreateUserAndListMatchesRequest) (*CreateUserAndListMatchesResponse, error)
 	DeleteUserById(context.Context, *DeleteUserByIdRequest) (*emptypb.Empty, error)
-	ListMatchesById(context.Context, *ListMatchesByIdRequest) (*ListMatchesByIdResponse, error)
+	ListMatchesByUserId(context.Context, *ListMatchesByUserIdRequest) (*ListMatchesByUserIdResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -89,8 +89,8 @@ func (UnimplementedUserServiceServer) CreateUserAndListMatches(context.Context, 
 func (UnimplementedUserServiceServer) DeleteUserById(context.Context, *DeleteUserByIdRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserById not implemented")
 }
-func (UnimplementedUserServiceServer) ListMatchesById(context.Context, *ListMatchesByIdRequest) (*ListMatchesByIdResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListMatchesById not implemented")
+func (UnimplementedUserServiceServer) ListMatchesByUserId(context.Context, *ListMatchesByUserIdRequest) (*ListMatchesByUserIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMatchesByUserId not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -141,20 +141,20 @@ func _UserService_DeleteUserById_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_ListMatchesById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListMatchesByIdRequest)
+func _UserService_ListMatchesByUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListMatchesByUserIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).ListMatchesById(ctx, in)
+		return srv.(UserServiceServer).ListMatchesByUserId(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_ListMatchesById_FullMethodName,
+		FullMethod: UserService_ListMatchesByUserId_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).ListMatchesById(ctx, req.(*ListMatchesByIdRequest))
+		return srv.(UserServiceServer).ListMatchesByUserId(ctx, req.(*ListMatchesByUserIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -175,8 +175,8 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_DeleteUserById_Handler,
 		},
 		{
-			MethodName: "ListMatchesById",
-			Handler:    _UserService_ListMatchesById_Handler,
+			MethodName: "ListMatchesByUserId",
+			Handler:    _UserService_ListMatchesByUserId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

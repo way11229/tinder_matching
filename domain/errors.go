@@ -8,8 +8,10 @@ var (
 	ErrorRecordNotFound      = errors.New("record not found")
 
 	// invalidate parameter
-	ErrorUserNameInvalidate                = errors.New("user name invalidate")
-	ErrorUserHeightInvalidate              = errors.New("user height invalidate")
-	ErrorUserGenderInvalidate              = errors.New("user gender invalidate")
-	ErrorUserNumberOfWantedDatesInvalidate = errors.New("user number of wanted dates invalidate")
+	ErrorMissRequiredParameters         = errors.New("miss required parameters")
+	ErrorUserIdInvalid                  = errors.New("user id is invalid")
+	ErrorUserNameInvalid                = errors.New("user name is invalid")
+	ErrorUserHeightInvalid              = errors.New("user height is invalid")
+	ErrorUserGenderInvalid              = errors.New("user gender si invalid")
+	ErrorUserNumberOfWantedDatesInvalid = errors.New("user number of wanted dates is invalid")
 )

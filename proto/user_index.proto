@@ -4,7 +4,7 @@ package user;
 
 import "user_create_user_and_list_matches.proto";
 import "user_delete_user_by_id.proto";
-import "user_list_matches_by_id.proto";
+import "user_list_matches_by_user_id.proto";
 
 // basic
 import "google/protobuf/empty.proto";
@@ -51,7 +51,7 @@ service UserService {
     };
   }
 
-  rpc ListMatchesById(ListMatchesByIdRequest) returns (ListMatchesByIdResponse) {
+  rpc ListMatchesByUserId(ListMatchesByUserIdRequest) returns (ListMatchesByUserIdResponse) {
     option (google.api.http) = {
       get: "/users/{user_id}/matches"
     };

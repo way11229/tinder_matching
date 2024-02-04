@@ -8,7 +8,7 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/way11229/tinder_matching";
 
-message ListMatchesByIdRequest {
+message ListMatchesByUserIdRequest {
   string user_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
     description: "user id",
     required: ["user_id"],
@@ -18,7 +18,7 @@ message ListMatchesByIdRequest {
   }];
 }
 
-message ListMatchesByIdResponse {
+message ListMatchesByUserIdResponse {
   repeated User matches = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
     description: "matches of the user",
   }];

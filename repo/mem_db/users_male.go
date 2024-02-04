@@ -214,7 +214,7 @@ func (u *UsersMaleMemDB) GetById(ctx context.Context, id uuid.UUID) (*domain.Use
 		return nil, err
 	}
 
-	return u.remodelUser([]*User{user})[0], nil
+	return u.remodelUsers([]*User{user})[0], nil
 }
 
 func (u *UsersMaleMemDB) ListByHeightUpperBoundWithoutEqual(ctx context.Context, search *domain.UsersMemDbHeightSearch) ([]*domain.User, error) {
@@ -250,7 +250,7 @@ func (u *UsersMaleMemDB) ListByHeightUpperBoundWithoutEqual(ctx context.Context,
 		return nil, err
 	}
 
-	return u.remodelUser(users), nil
+	return u.remodelUsers(users), nil
 }
 
 func (u *UsersMaleMemDB) ListByHeightLowerBoundWithoutEqual(ctx context.Context, search *domain.UsersMemDbHeightSearch) ([]*domain.User, error) {
@@ -286,10 +286,10 @@ func (u *UsersMaleMemDB) ListByHeightLowerBoundWithoutEqual(ctx context.Context,
 		return nil, err
 	}
 
-	return u.remodelUser(users), nil
+	return u.remodelUsers(users), nil
 }
 
-func (u *UsersMaleMemDB) remodelUser(data []*User) []*domain.User {
+func (u *UsersMaleMemDB) remodelUsers(data []*User) []*domain.User {
 	rtn := []*domain.User{}
 	for _, e := range data {
 		rtn = append(rtn, &domain.User{
