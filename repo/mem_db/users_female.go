@@ -95,7 +95,7 @@ func (u *UsersFemaleMemDB) Create(ctx context.Context, input *domain.UsersMemDbC
 	}, nil
 }
 
-func (u *UsersFemaleMemDB) UpdateById(ctx context.Context, input *domain.UsersMemDbUpdateById) error {
+func (u *UsersFemaleMemDB) Update(ctx context.Context, input *domain.UsersMemDbUpdate) error {
 	user := &User{
 		Id:                  input.Id,
 		Name:                input.Name,
@@ -105,8 +105,36 @@ func (u *UsersFemaleMemDB) UpdateById(ctx context.Context, input *domain.UsersMe
 
 	err := u.memdb.ExecTrx(true, func(t *memdb.Txn) error {
 		if err := t.Insert(USERS_FEMALE_MEM_DB_TABLE_NAME, user); err != nil {
-			log.Printf("UsersFemaleMemDB, updateById, insert error: %v, input: %v", err, user)
+			log.Printf("UsersFemaleMemDB, update, insert error: %v, input: %v", err, user)
 			return domain.ErrorInternalServerError
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *UsersFemaleMemDB) UpdateBatch(ctx context.Context, input []*domain.UsersMemDbUpdate) error {
+	users := []*User{}
+	for _, e := range input {
+		users = append(users, &User{
+			Id:                  e.Id,
+			Name:                e.Name,
+			Height:              e.Height,
+			RemainNumberOfDates: e.RemainNumberOfDates,
+		})
+	}
+
+	err := u.memdb.ExecTrx(true, func(t *memdb.Txn) error {
+		for _, e := range users {
+			if err := t.Insert(USERS_FEMALE_MEM_DB_TABLE_NAME, e); err != nil {
+				log.Printf("UsersFemaleMemDB, updateBatch, insert error: %v, input: %v", err, e)
+				return domain.ErrorInternalServerError
+			}
 		}
 
 		return nil
@@ -124,6 +152,29 @@ func (u *UsersFemaleMemDB) DeleteById(ctx context.Context, id uuid.UUID) error {
 		if err := t.Delete(USERS_FEMALE_MEM_DB_TABLE_NAME, user); err != nil {
 			log.Printf("UsersFemaleMemDB, deleteById, delete error: %v, input: %v", err, user)
 			return domain.ErrorInternalServerError
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *UsersFemaleMemDB) DeleteByIds(ctx context.Context, ids []uuid.UUID) error {
+	users := []*User{}
+	for _, e := range ids {
+		users = append(users, &User{Id: e})
+	}
+
+	err := u.memdb.ExecTrx(true, func(t *memdb.Txn) error {
+		for _, e := range users {
+			if err := t.Delete(USERS_FEMALE_MEM_DB_TABLE_NAME, e); err != nil {
+				log.Printf("UsersMaleMemDB, deleteByIds, delete error: %v, input: %v", err, e)
+				return domain.ErrorInternalServerError
+			}
 		}
 		return nil
 	})
