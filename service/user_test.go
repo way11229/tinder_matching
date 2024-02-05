@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -623,6 +624,9 @@ func TestUserService_listMatchesByUserId(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			maleTmp := *male
+			femaleTmp := *female
+
 			mockMaleMemDB := mocks.NewUsersMaleMemDB(t)
 			mockFemaleMemDB := mocks.NewUsersFemaleMemDB(t)
 
@@ -631,7 +635,28 @@ func TestUserService_listMatchesByUserId(t *testing.T) {
 				mockMaleMemDB.EXPECT().GetById(
 					tt.args.ctx,
 					tt.args.input.UserId,
-				).Return(male, nil)
+				).Return(&maleTmp, nil)
+				mockMaleMemDB.EXPECT().ReduceNumberOfDatesOfUserAndMatchesTrx(
+					tt.args.ctx,
+					&domain.ReduceNumberOfDatesOfUserAndMatchesTrx{
+						UserUpdate: &domain.UsersMemDbUpdate{
+							Id:                  male.Id,
+							Name:                male.Name,
+							Height:              male.Height,
+							RemainNumberOfDates: male.RemainNumberOfDates - 1,
+						},
+						UserDeleteId: uuid.NullUUID{},
+						UpdateMatches: []*domain.UsersMemDbUpdate{
+							{
+								Id:                  female.Id,
+								Name:                female.Name,
+								Height:              female.Height,
+								RemainNumberOfDates: female.RemainNumberOfDates - 1,
+							},
+						},
+						DeleteMatchesIds: []uuid.UUID{},
+					},
+				).Return(nil)
 				mockFemaleMemDB.EXPECT().ListByHeightUpperBoundWithoutEqual(
 					tt.args.ctx,
 					&domain.UsersMemDbHeightSearch{
@@ -642,20 +667,12 @@ func TestUserService_listMatchesByUserId(t *testing.T) {
 					[]*domain.User{female},
 					nil,
 				)
-				mockFemaleMemDB.EXPECT().UpdateBatch(
-					tt.args.ctx,
-					[]*domain.UsersMemDbUpdate{{
-						Id:                  female.Id,
-						Name:                female.Name,
-						Height:              female.Height,
-						RemainNumberOfDates: female.RemainNumberOfDates - 1,
-					}},
-				).Return(nil)
 			case "user_male_not_reduce":
+				fmt.Println(male.RemainNumberOfDates)
 				mockMaleMemDB.EXPECT().GetById(
 					tt.args.ctx,
 					tt.args.input.UserId,
-				).Return(male, nil)
+				).Return(&maleTmp, nil)
 				mockFemaleMemDB.EXPECT().ListByHeightUpperBoundWithoutEqual(
 					tt.args.ctx,
 					&domain.UsersMemDbHeightSearch{
@@ -666,6 +683,7 @@ func TestUserService_listMatchesByUserId(t *testing.T) {
 					[]*domain.User{female},
 					nil,
 				)
+				fmt.Println(male.RemainNumberOfDates)
 			case "user_female_reduce":
 				mockMaleMemDB.EXPECT().GetById(
 					tt.args.ctx,
@@ -674,7 +692,7 @@ func TestUserService_listMatchesByUserId(t *testing.T) {
 				mockFemaleMemDB.EXPECT().GetById(
 					tt.args.ctx,
 					tt.args.input.UserId,
-				).Return(female, nil)
+				).Return(&femaleTmp, nil)
 				mockMaleMemDB.EXPECT().ListByHeightLowerBoundWithoutEqual(
 					tt.args.ctx,
 					&domain.UsersMemDbHeightSearch{
@@ -685,14 +703,26 @@ func TestUserService_listMatchesByUserId(t *testing.T) {
 					[]*domain.User{male},
 					nil,
 				)
-				mockMaleMemDB.EXPECT().UpdateBatch(
+				mockFemaleMemDB.EXPECT().ReduceNumberOfDatesOfUserAndMatchesTrx(
 					tt.args.ctx,
-					[]*domain.UsersMemDbUpdate{{
-						Id:                  male.Id,
-						Name:                male.Name,
-						Height:              male.Height,
-						RemainNumberOfDates: male.RemainNumberOfDates - 1,
-					}},
+					&domain.ReduceNumberOfDatesOfUserAndMatchesTrx{
+						UserUpdate: &domain.UsersMemDbUpdate{
+							Id:                  female.Id,
+							Name:                female.Name,
+							Height:              female.Height,
+							RemainNumberOfDates: female.RemainNumberOfDates - 1,
+						},
+						UserDeleteId: uuid.NullUUID{},
+						UpdateMatches: []*domain.UsersMemDbUpdate{
+							{
+								Id:                  male.Id,
+								Name:                male.Name,
+								Height:              male.Height,
+								RemainNumberOfDates: male.RemainNumberOfDates - 1,
+							},
+						},
+						DeleteMatchesIds: []uuid.UUID{},
+					},
 				).Return(nil)
 			case "user_female_not_reduce":
 				mockMaleMemDB.EXPECT().GetById(
@@ -702,7 +732,7 @@ func TestUserService_listMatchesByUserId(t *testing.T) {
 				mockFemaleMemDB.EXPECT().GetById(
 					tt.args.ctx,
 					tt.args.input.UserId,
-				).Return(female, nil)
+				).Return(&femaleTmp, nil)
 				mockMaleMemDB.EXPECT().ListByHeightLowerBoundWithoutEqual(
 					tt.args.ctx,
 					&domain.UsersMemDbHeightSearch{
@@ -834,6 +864,27 @@ func TestUserService_CreateUserAndListMatches(t *testing.T) {
 					RemainNumberOfDates: tt.args.input.RemainNumberOfDates,
 					Gender:              domain.USER_GENDER_MALE,
 				}, nil)
+				mockMaleMemDB.EXPECT().ReduceNumberOfDatesOfUserAndMatchesTrx(
+					tt.args.ctx,
+					&domain.ReduceNumberOfDatesOfUserAndMatchesTrx{
+						UserUpdate: &domain.UsersMemDbUpdate{
+							Id:                  genId,
+							Name:                tt.args.input.Name,
+							Height:              tt.args.input.Height,
+							RemainNumberOfDates: tt.args.input.RemainNumberOfDates - 1,
+						},
+						UserDeleteId: uuid.NullUUID{},
+						UpdateMatches: []*domain.UsersMemDbUpdate{
+							{
+								Id:                  female.Id,
+								Name:                female.Name,
+								Height:              female.Height,
+								RemainNumberOfDates: female.RemainNumberOfDates - 1,
+							},
+						},
+						DeleteMatchesIds: []uuid.UUID{},
+					},
+				).Return(nil)
 				mockFemaleMemDB.EXPECT().ListByHeightUpperBoundWithoutEqual(
 					tt.args.ctx,
 					&domain.UsersMemDbHeightSearch{
@@ -844,15 +895,6 @@ func TestUserService_CreateUserAndListMatches(t *testing.T) {
 					[]*domain.User{female},
 					nil,
 				)
-				mockFemaleMemDB.EXPECT().UpdateBatch(
-					tt.args.ctx,
-					[]*domain.UsersMemDbUpdate{{
-						Id:                  female.Id,
-						Name:                female.Name,
-						Height:              female.Height,
-						RemainNumberOfDates: female.RemainNumberOfDates - 1,
-					}},
-				).Return(nil)
 			case "female":
 				mockFemaleMemDB.EXPECT().Create(
 					tt.args.ctx,
@@ -891,14 +933,26 @@ func TestUserService_CreateUserAndListMatches(t *testing.T) {
 					[]*domain.User{male},
 					nil,
 				)
-				mockMaleMemDB.EXPECT().UpdateBatch(
+				mockFemaleMemDB.EXPECT().ReduceNumberOfDatesOfUserAndMatchesTrx(
 					tt.args.ctx,
-					[]*domain.UsersMemDbUpdate{{
-						Id:                  male.Id,
-						Name:                male.Name,
-						Height:              male.Height,
-						RemainNumberOfDates: male.RemainNumberOfDates - 1,
-					}},
+					&domain.ReduceNumberOfDatesOfUserAndMatchesTrx{
+						UserUpdate: &domain.UsersMemDbUpdate{
+							Id:                  genId,
+							Name:                tt.args.input.Name,
+							Height:              tt.args.input.Height,
+							RemainNumberOfDates: tt.args.input.RemainNumberOfDates - 1,
+						},
+						UserDeleteId: uuid.NullUUID{},
+						UpdateMatches: []*domain.UsersMemDbUpdate{
+							{
+								Id:                  male.Id,
+								Name:                male.Name,
+								Height:              male.Height,
+								RemainNumberOfDates: male.RemainNumberOfDates - 1,
+							},
+						},
+						DeleteMatchesIds: []uuid.UUID{},
+					},
 				).Return(nil)
 			}
 
