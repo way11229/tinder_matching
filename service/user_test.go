@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 	"github.com/way11229/tinder_matching/domain"
 	"github.com/way11229/tinder_matching/mocks"
 )
@@ -648,10 +649,8 @@ func TestUserService_listMatchesByUserId(t *testing.T) {
 				return
 			}
 
-			for idx, val := range resp {
-				if !reflect.DeepEqual(val, tt.want[idx]) {
-					t.Errorf("UserService.listMatchesByUserId() = %v, want %v", val, tt.want[idx])
-				}
+			if !assert.ElementsMatch(t, resp, tt.want) {
+				t.Errorf("UserService.listMatchesByUserId() = %v, want %v", resp, tt.want)
 			}
 		})
 	}
