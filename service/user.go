@@ -227,8 +227,9 @@ func (u *UserService) reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(ctx c
 	deleteUserIds := []uuid.UUID{}
 
 	for _, e := range input.Users {
-		remain := e.RemainNumberOfDates - 1
-		if remain <= 0 {
+		e.RemainNumberOfDates -= 1
+		if e.RemainNumberOfDates <= 0 {
+			e.RemainNumberOfDates = 0
 			deleteUserIds = append(deleteUserIds, e.Id)
 			continue
 		}
@@ -237,7 +238,7 @@ func (u *UserService) reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(ctx c
 			Id:                  e.Id,
 			Name:                e.Name,
 			Height:              e.Height,
-			RemainNumberOfDates: remain,
+			RemainNumberOfDates: e.RemainNumberOfDates,
 		})
 	}
 
