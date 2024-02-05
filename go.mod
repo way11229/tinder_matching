@@ -4,6 +4,7 @@ go 1.21.6
 
 require (
 	github.com/google/uuid v1.6.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1
 	github.com/hashicorp/go-memdb v1.3.4
 	google.golang.org/genproto/googleapis/api v0.0.0-20240125205218-1f4bbc51befe
