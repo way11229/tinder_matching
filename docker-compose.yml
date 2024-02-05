@@ -1,0 +1,8 @@
+services:
+  tinder_matching:
+    build: .
+    container_name: tinder_matching
+    ports:
+      - 8080:8080 # for http
+      - 9000:9000 # for grpc
+    restart: unless-stopped
