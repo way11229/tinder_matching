@@ -55,8 +55,9 @@ func (u *UserService) CreateUserAndListMatches(ctx context.Context, input *domai
 	}
 
 	matches, err := u.listMatchesByUserId(ctx, &listMatchesByUserIdType{
-		UserId: newUserId,
-		Limit:  nil,
+		UserId:              newUserId,
+		Limit:               nil,
+		ReduceNumberOfDates: true,
 	})
 	if err != nil {
 		return &domain.CreateUserResp{
@@ -98,8 +99,9 @@ func (u *UserService) ListMatchesByUserId(ctx context.Context, input *domain.Use
 	}
 
 	matches, err := u.listMatchesByUserId(ctx, &listMatchesByUserIdType{
-		UserId: input.UserId,
-		Limit:  &limit,
+		UserId:              input.UserId,
+		Limit:               &limit,
+		ReduceNumberOfDates: false,
 	})
 	if err != nil {
 		return nil, err
