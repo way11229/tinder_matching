@@ -26,7 +26,6 @@ type UsersMemDbHeightSearch struct {
 
 type UsersMemDB interface {
 	Create(ctx context.Context, input *UsersMemDbCreate) (uuid.NullUUID, error)
-	Update(ctx context.Context, input *UsersMemDbUpdate) error
 	UpdateBatch(ctx context.Context, input []*UsersMemDbUpdate) error
 	DeleteById(ctx context.Context, id uuid.UUID) error
 	DeleteByIds(ctx context.Context, ids []uuid.UUID) error

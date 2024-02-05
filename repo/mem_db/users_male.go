@@ -95,29 +95,6 @@ func (u *UsersMaleMemDB) Create(ctx context.Context, input *domain.UsersMemDbCre
 	}, nil
 }
 
-func (u *UsersMaleMemDB) Update(ctx context.Context, input *domain.UsersMemDbUpdate) error {
-	user := &User{
-		Id:                  input.Id.String(),
-		Name:                input.Name,
-		Height:              input.Height,
-		RemainNumberOfDates: input.RemainNumberOfDates,
-	}
-
-	err := u.memdb.ExecTrx(true, func(t *memdb.Txn) error {
-		if err := t.Insert(USERS_MALE_MEM_DB_TABLE_NAME, user); err != nil {
-			log.Printf("UsersMaleMemDB, update, insert error: %v, input: %v", err, user)
-			return domain.ErrorInternalServerError
-		}
-
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (u *UsersMaleMemDB) UpdateBatch(ctx context.Context, input []*domain.UsersMemDbUpdate) error {
 	users := []*User{}
 	for _, e := range input {
