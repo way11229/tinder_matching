@@ -165,12 +165,12 @@
       "properties": {
         "name": {
           "type": "string",
-          "description": "user name"
+          "description": "user name, max length: 100 characters"
         },
         "height": {
           "type": "integer",
           "format": "int64",
-          "description": "user height"
+          "description": "user height, max value: 250"
         },
         "gender": {
           "$ref": "#/definitions/userUserGender",
@@ -179,7 +179,7 @@
         "numberOfWantedDates": {
           "type": "integer",
           "format": "int64",
-          "description": "nubmer of wanted dates"
+          "description": "nubmer of wanted dates, max value: 100"
         }
       },
       "required": [

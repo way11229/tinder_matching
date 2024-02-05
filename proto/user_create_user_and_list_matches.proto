@@ -11,11 +11,11 @@ option go_package = "github.com/way11229/tinder_matching";
 
 message CreateUserAndListMatchesRequest {
   string name = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-    description: "user name",
+    description: "user name, max length: 100 characters",
     required: ["name"],
   }];
   uint32 height = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-    description: "user height",
+    description: "user height, max value: 250",
     required: ["height"],
   }];
   UserGender gender = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
@@ -23,7 +23,7 @@ message CreateUserAndListMatchesRequest {
     required: ["gender"],
   }];
   uint32 number_of_wanted_dates = 4 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-    description: "nubmer of wanted dates",
+    description: "nubmer of wanted dates, max value: 100",
     required: ["number_of_wanted_dates"],
   }];
 }
