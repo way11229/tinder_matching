@@ -435,3 +435,94 @@ func TestUsersMaleMemDB_Create_ListByHeightLowerBoundWithoutEqual_DeleteByIds(t 
 		})
 	}
 }
+
+func TestUsersMaleMemDB_GetById(t *testing.T) {
+	type fields struct {
+		memdb *MemDB
+	}
+	type args struct {
+		ctx context.Context
+		id  uuid.UUID
+	}
+
+	db := NewMemDB()
+	ctx := context.Background()
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *domain.User
+		wantErr bool
+	}{
+		{
+			name: "record not found error",
+			fields: fields{
+				memdb: db,
+			},
+			args: args{
+				ctx: ctx,
+				id:  uuid.New(),
+			},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := &UsersMaleMemDB{
+				memdb: tt.fields.memdb,
+			}
+			got, err := u.GetById(tt.args.ctx, tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UsersMaleMemDB.GetById() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("UsersMaleMemDB.GetById() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUsersMaleMemDB_DeleteById(t *testing.T) {
+	type fields struct {
+		memdb *MemDB
+	}
+	type args struct {
+		ctx context.Context
+		id  uuid.UUID
+	}
+
+	db := NewMemDB()
+	ctx := context.Background()
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "delete not exist",
+			fields: fields{
+				memdb: db,
+			},
+			args: args{
+				ctx: ctx,
+				id:  uuid.New(),
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := &UsersMaleMemDB{
+				memdb: tt.fields.memdb,
+			}
+			if err := u.DeleteById(tt.args.ctx, tt.args.id); (err != nil) != tt.wantErr {
+				t.Errorf("UsersMaleMemDB.DeleteById() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
