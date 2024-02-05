@@ -71,7 +71,7 @@ func (u *UsersMaleMemDB) Create(ctx context.Context, input *domain.UsersMemDbCre
 	}
 
 	user := &User{
-		Id:                  userId,
+		Id:                  userId.String(),
 		Name:                input.Name,
 		Height:              input.Height,
 		RemainNumberOfDates: input.RemainNumberOfDates,
@@ -97,7 +97,7 @@ func (u *UsersMaleMemDB) Create(ctx context.Context, input *domain.UsersMemDbCre
 
 func (u *UsersMaleMemDB) Update(ctx context.Context, input *domain.UsersMemDbUpdate) error {
 	user := &User{
-		Id:                  input.Id,
+		Id:                  input.Id.String(),
 		Name:                input.Name,
 		Height:              input.Height,
 		RemainNumberOfDates: input.RemainNumberOfDates,
@@ -122,7 +122,7 @@ func (u *UsersMaleMemDB) UpdateBatch(ctx context.Context, input []*domain.UsersM
 	users := []*User{}
 	for _, e := range input {
 		users = append(users, &User{
-			Id:                  e.Id,
+			Id:                  e.Id.String(),
 			Name:                e.Name,
 			Height:              e.Height,
 			RemainNumberOfDates: e.RemainNumberOfDates,
@@ -147,7 +147,7 @@ func (u *UsersMaleMemDB) UpdateBatch(ctx context.Context, input []*domain.UsersM
 }
 
 func (u *UsersMaleMemDB) DeleteById(ctx context.Context, id uuid.UUID) error {
-	user := &User{Id: id}
+	user := &User{Id: id.String()}
 	err := u.memdb.ExecTrx(true, func(t *memdb.Txn) error {
 		if err := t.Delete(USERS_MALE_MEM_DB_TABLE_NAME, user); err != nil {
 			log.Printf("UsersMaleMemDB, deleteById, delete error: %v, input: %v", err, user)
@@ -166,7 +166,7 @@ func (u *UsersMaleMemDB) DeleteById(ctx context.Context, id uuid.UUID) error {
 func (u *UsersMaleMemDB) DeleteByIds(ctx context.Context, ids []uuid.UUID) error {
 	users := []*User{}
 	for _, e := range ids {
-		users = append(users, &User{Id: e})
+		users = append(users, &User{Id: e.String()})
 	}
 
 	err := u.memdb.ExecTrx(true, func(t *memdb.Txn) error {
@@ -190,7 +190,7 @@ func (u *UsersMaleMemDB) GetById(ctx context.Context, id uuid.UUID) (*domain.Use
 	user := &User{}
 
 	err := u.memdb.ExecTrx(false, func(t *memdb.Txn) error {
-		raw, err := t.First(USERS_MALE_MEM_DB_TABLE_NAME, "id", id)
+		raw, err := t.First(USERS_MALE_MEM_DB_TABLE_NAME, "id", id.String())
 		if err != nil {
 			log.Printf("UsersMaleMemDB, getById, first error: %v, input: %v", err, id)
 			return domain.ErrorInternalServerError
@@ -292,8 +292,9 @@ func (u *UsersMaleMemDB) ListByHeightLowerBoundWithoutEqual(ctx context.Context,
 func (u *UsersMaleMemDB) remodelUsers(data []*User) []*domain.User {
 	rtn := []*domain.User{}
 	for _, e := range data {
+		id, _ := uuid.Parse(e.Id)
 		rtn = append(rtn, &domain.User{
-			Id:                  e.Id,
+			Id:                  id,
 			Name:                e.Name,
 			Height:              e.Height,
 			Gender:              domain.USER_GENDER_MALE,

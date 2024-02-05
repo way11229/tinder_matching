@@ -1,9 +1,7 @@
 package memdb
 
-import "github.com/google/uuid"
-
 type User struct {
-	Id                  uuid.UUID
+	Id                  string
 	Name                string
 	Height              uint32
 	RemainNumberOfDates uint32

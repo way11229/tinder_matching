@@ -119,12 +119,19 @@ func (g *GrpcHandler) getGrpcCodeFromError(err error) codes.Code {
 func (g *GrpcHandler) remodelUsers(data []*domain.User) []*pb.User {
 	rtn := []*pb.User{}
 	for _, e := range data {
-		rtn = append(rtn, &pb.User{
+		user := &pb.User{
+			Id:                  e.Id.String(),
 			Name:                e.Name,
 			Height:              e.Height,
-			Gender:              pb.UserGender(pb.UserGender_value[string(e.Gender)]),
+			Gender:              pb.UserGender_USER_GENDER_MALE,
 			RemainNumberOfDates: e.RemainNumberOfDates,
-		})
+		}
+
+		if e.Gender == domain.USER_GENDER_FEMALE {
+			user.Gender = pb.UserGender_USER_GENDER_FEMALE
+		}
+
+		rtn = append(rtn, user)
 	}
 
 	return rtn
