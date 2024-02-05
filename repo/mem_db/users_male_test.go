@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 	"github.com/way11229/tinder_matching/domain"
 )
 
@@ -313,11 +314,9 @@ func TestUsersMaleMemDB_Create_ListByHeightUpperBoundWithoutEqual_DeleteByIds(t 
 				return
 			}
 
-			for idx, val := range resp {
-				if !reflect.DeepEqual(val, tt.want[idx]) {
-					t.Errorf("UsersMaleMemDB.ListByHeightUpperBoundWithoutEqual() = %v, want %v", val, tt.want[idx])
-					return
-				}
+			if !assert.ElementsMatch(t, resp, tt.want) {
+				t.Errorf("UsersMaleMemDB.ListByHeightUpperBoundWithoutEqual() = %v, want %v", resp, tt.want)
+				return
 			}
 
 			if err := u.DeleteByIds(tt.args.ctx, deleteIds); (err != nil) != tt.wantErr {
@@ -421,11 +420,9 @@ func TestUsersMaleMemDB_Create_ListByHeightLowerBoundWithoutEqual_DeleteByIds(t 
 				return
 			}
 
-			for idx, val := range resp {
-				if !reflect.DeepEqual(val, tt.want[idx]) {
-					t.Errorf("UsersMaleMemDB.ListByHeightLowerBoundWithoutEqual() = %v, want %v", val, tt.want[idx])
-					return
-				}
+			if !assert.ElementsMatch(t, resp, tt.want) {
+				t.Errorf("UsersMaleMemDB.ListByHeightLowerBoundWithoutEqual() = %v, want %v", resp, tt.want)
+				return
 			}
 
 			if err := u.DeleteByIds(tt.args.ctx, deleteIds); (err != nil) != tt.wantErr {

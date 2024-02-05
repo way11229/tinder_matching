@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 	"github.com/way11229/tinder_matching/domain"
 )
 
@@ -271,14 +272,14 @@ func TestUsersFemaleMemDB_Create_ListByHeightUpperBoundWithoutEqual_DeleteByIds(
 			},
 			want: []*domain.User{
 				{
-					Name:                "test2",
-					Height:              180,
+					Name:                "test1",
+					Height:              170,
 					Gender:              domain.USER_GENDER_FEMALE,
 					RemainNumberOfDates: 50,
 				},
 				{
-					Name:                "test1",
-					Height:              170,
+					Name:                "test2",
+					Height:              180,
 					Gender:              domain.USER_GENDER_FEMALE,
 					RemainNumberOfDates: 50,
 				},
@@ -313,11 +314,9 @@ func TestUsersFemaleMemDB_Create_ListByHeightUpperBoundWithoutEqual_DeleteByIds(
 				return
 			}
 
-			for idx, val := range resp {
-				if !reflect.DeepEqual(val, tt.want[idx]) {
-					t.Errorf("UsersFemaleMemDB.ListByHeightUpperBoundWithoutEqual() = %v, want %v", val, tt.want[idx])
-					return
-				}
+			if !assert.ElementsMatch(t, resp, tt.want) {
+				t.Errorf("UsersFemaleMemDB.ListByHeightUpperBoundWithoutEqual() = %v, want %v", resp, tt.want)
+				return
 			}
 
 			if err := u.DeleteByIds(tt.args.ctx, deleteIds); (err != nil) != tt.wantErr {
@@ -421,11 +420,9 @@ func TestUsersFemaleMemDB_Create_ListByHeightLowerBoundWithoutEqual_DeleteByIds(
 				return
 			}
 
-			for idx, val := range resp {
-				if !reflect.DeepEqual(val, tt.want[idx]) {
-					t.Errorf("UsersFemaleMemDB.ListByHeightLowerBoundWithoutEqual() = %v, want %v", val, tt.want[idx])
-					return
-				}
+			if !assert.ElementsMatch(t, resp, tt.want) {
+				t.Errorf("UsersFemaleMemDB.ListByHeightLowerBoundWithoutEqual() = %v, want %v", resp, tt.want)
+				return
 			}
 
 			if err := u.DeleteByIds(tt.args.ctx, deleteIds); (err != nil) != tt.wantErr {
