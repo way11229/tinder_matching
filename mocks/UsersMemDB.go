@@ -352,6 +352,53 @@ func (_c *UsersMemDB_ListByHeightUpperBoundWithoutEqual_Call) RunAndReturn(run f
 	return _c
 }
 
+// ReduceNumberOfDatesOfUserAndMatchesTrx provides a mock function with given fields: ctx, input
+func (_m *UsersMemDB) ReduceNumberOfDatesOfUserAndMatchesTrx(ctx context.Context, input *domain.ReduceNumberOfDatesOfUserAndMatchesTrx) error {
+	ret := _m.Called(ctx, input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ReduceNumberOfDatesOfUserAndMatchesTrx")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *domain.ReduceNumberOfDatesOfUserAndMatchesTrx) error); ok {
+		r0 = rf(ctx, input)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UsersMemDB_ReduceNumberOfDatesOfUserAndMatchesTrx_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReduceNumberOfDatesOfUserAndMatchesTrx'
+type UsersMemDB_ReduceNumberOfDatesOfUserAndMatchesTrx_Call struct {
+	*mock.Call
+}
+
+// ReduceNumberOfDatesOfUserAndMatchesTrx is a helper method to define mock.On call
+//   - ctx context.Context
+//   - input *domain.ReduceNumberOfDatesOfUserAndMatchesTrx
+func (_e *UsersMemDB_Expecter) ReduceNumberOfDatesOfUserAndMatchesTrx(ctx interface{}, input interface{}) *UsersMemDB_ReduceNumberOfDatesOfUserAndMatchesTrx_Call {
+	return &UsersMemDB_ReduceNumberOfDatesOfUserAndMatchesTrx_Call{Call: _e.mock.On("ReduceNumberOfDatesOfUserAndMatchesTrx", ctx, input)}
+}
+
+func (_c *UsersMemDB_ReduceNumberOfDatesOfUserAndMatchesTrx_Call) Run(run func(ctx context.Context, input *domain.ReduceNumberOfDatesOfUserAndMatchesTrx)) *UsersMemDB_ReduceNumberOfDatesOfUserAndMatchesTrx_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*domain.ReduceNumberOfDatesOfUserAndMatchesTrx))
+	})
+	return _c
+}
+
+func (_c *UsersMemDB_ReduceNumberOfDatesOfUserAndMatchesTrx_Call) Return(_a0 error) *UsersMemDB_ReduceNumberOfDatesOfUserAndMatchesTrx_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *UsersMemDB_ReduceNumberOfDatesOfUserAndMatchesTrx_Call) RunAndReturn(run func(context.Context, *domain.ReduceNumberOfDatesOfUserAndMatchesTrx) error) *UsersMemDB_ReduceNumberOfDatesOfUserAndMatchesTrx_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateBatch provides a mock function with given fields: ctx, input
 func (_m *UsersMemDB) UpdateBatch(ctx context.Context, input []*domain.UsersMemDbUpdate) error {
 	ret := _m.Called(ctx, input)

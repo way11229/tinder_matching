@@ -523,3 +523,107 @@ func TestUsersMaleMemDB_DeleteById(t *testing.T) {
 		})
 	}
 }
+
+func TestUsersMaleMemDB_ReduceNumberOfDatesOfUserAndMatchesTrx(t *testing.T) {
+	type fields struct {
+		memdb *MemDB
+	}
+	type args struct {
+		ctx           context.Context
+		createUser    *domain.UsersMemDbCreate
+		createMatches []*domain.UsersMemDbCreate
+		input         *domain.ReduceNumberOfDatesOfUserAndMatchesTrx
+	}
+
+	db := NewMemDB()
+	ctx := context.Background()
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "success",
+			fields: fields{
+				memdb: db,
+			},
+			args: args{
+				ctx: ctx,
+				createUser: &domain.UsersMemDbCreate{
+					Name:                "test",
+					Height:              180,
+					RemainNumberOfDates: 50,
+				},
+				createMatches: []*domain.UsersMemDbCreate{
+					{
+						Name:                "test1",
+						Height:              170,
+						RemainNumberOfDates: 50,
+					},
+					{
+						Name:                "test2",
+						Height:              160,
+						RemainNumberOfDates: 50,
+					},
+				},
+				input: &domain.ReduceNumberOfDatesOfUserAndMatchesTrx{
+					UserUpdate: &domain.UsersMemDbUpdate{
+						Name:                "test",
+						Height:              180,
+						RemainNumberOfDates: 48,
+					},
+					UpdateMatches: []*domain.UsersMemDbUpdate{
+						{
+							Name:                "test1",
+							Height:              170,
+							RemainNumberOfDates: 48,
+						},
+						{
+							Name:                "test2",
+							Height:              160,
+							RemainNumberOfDates: 48,
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			maleDB := &UsersMaleMemDB{
+				memdb: tt.fields.memdb,
+			}
+			femaleDB := &UsersFemaleMemDB{
+				memdb: tt.fields.memdb,
+			}
+
+			userCreateResp, err := maleDB.Create(tt.args.ctx, tt.args.createUser)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UsersMaleMemDB.Create() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			tt.args.input.UserUpdate.Id = userCreateResp.UUID
+
+			for _, e := range tt.args.createMatches {
+				matchCreateResp, err := femaleDB.Create(tt.args.ctx, e)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("UsersFemaleMemDB.Create() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+
+				for _, match := range tt.args.input.UpdateMatches {
+					if match.Name == e.Name {
+						match.Id = matchCreateResp.UUID
+					}
+				}
+			}
+
+			if err := maleDB.ReduceNumberOfDatesOfUserAndMatchesTrx(tt.args.ctx, tt.args.input); (err != nil) != tt.wantErr {
+				t.Errorf("UsersMaleMemDB.ReduceNumberOfDatesOfUserAndMatchesTrx() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

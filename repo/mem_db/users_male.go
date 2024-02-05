@@ -266,6 +266,63 @@ func (u *UsersMaleMemDB) ListByHeightLowerBoundWithoutEqual(ctx context.Context,
 	return u.remodelUsers(users), nil
 }
 
+func (u *UsersMaleMemDB) ReduceNumberOfDatesOfUserAndMatchesTrx(ctx context.Context, input *domain.ReduceNumberOfDatesOfUserAndMatchesTrx) error {
+	err := u.memdb.ExecTrx(false, func(t *memdb.Txn) error {
+		if input.UserUpdate != nil {
+			if err := t.Insert(USERS_MALE_MEM_DB_TABLE_NAME, &User{
+				Id:                  input.UserUpdate.Id.String(),
+				Name:                input.UserUpdate.Name,
+				Height:              input.UserUpdate.Height,
+				RemainNumberOfDates: input.UserUpdate.RemainNumberOfDates,
+			}); err != nil {
+				log.Printf("UsersMaleMemDB, reduceNumberOfDatesOfUserAndMatchesTrx, insert error: %v, input: %v", err, input.UserUpdate)
+				return domain.ErrorInternalServerError
+			}
+
+			if input.UserDeleteId.Valid {
+				if err := t.Delete(USERS_MALE_MEM_DB_TABLE_NAME, &User{
+					Id: input.UserDeleteId.UUID.String(),
+				}); err != nil {
+					log.Printf("UsersMaleMemDB, reduceNumberOfDatesOfUserAndMatchesTrx, delete error: %v, input: %v", err, input.UserDeleteId)
+					return domain.ErrorInternalServerError
+				}
+			}
+
+			if len(input.UpdateMatches) > 0 {
+				for _, e := range input.UpdateMatches {
+					if err := t.Insert(USERS_FEMALE_MEM_DB_TABLE_NAME, &User{
+						Id:                  e.Id.String(),
+						Name:                e.Name,
+						Height:              e.Height,
+						RemainNumberOfDates: e.RemainNumberOfDates,
+					}); err != nil {
+						log.Printf("UsersMaleMemDB, reduceNumberOfDatesOfUserAndMatchesTrx, insert error: %v, input: %v", err, e)
+						return domain.ErrorInternalServerError
+					}
+				}
+			}
+
+			if len(input.DeleteMatchesIds) > 0 {
+				for _, e := range input.DeleteMatchesIds {
+					if err := t.Delete(USERS_FEMALE_MEM_DB_TABLE_NAME, &User{
+						Id: e.String(),
+					}); err != nil {
+						log.Printf("UsersMaleMemDB, reduceNumberOfDatesOfUserAndMatchesTrx, delete error: %v, input: %v", err, input.UserDeleteId)
+						return domain.ErrorInternalServerError
+					}
+				}
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (u *UsersMaleMemDB) remodelUsers(data []*User) []*domain.User {
 	rtn := []*domain.User{}
 	for _, e := range data {

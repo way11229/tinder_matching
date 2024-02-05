@@ -24,6 +24,13 @@ type UsersMemDbHeightSearch struct {
 	Bound uint32
 }
 
+type ReduceNumberOfDatesOfUserAndMatchesTrx struct {
+	UserUpdate       *UsersMemDbUpdate
+	UserDeleteId     uuid.NullUUID
+	UpdateMatches    []*UsersMemDbUpdate
+	DeleteMatchesIds []uuid.UUID
+}
+
 type UsersMemDB interface {
 	Create(ctx context.Context, input *UsersMemDbCreate) (uuid.NullUUID, error)
 	UpdateBatch(ctx context.Context, input []*UsersMemDbUpdate) error
@@ -32,6 +39,7 @@ type UsersMemDB interface {
 	GetById(ctx context.Context, id uuid.UUID) (*User, error)
 	ListByHeightUpperBoundWithoutEqual(ctx context.Context, search *UsersMemDbHeightSearch) ([]*User, error)
 	ListByHeightLowerBoundWithoutEqual(ctx context.Context, search *UsersMemDbHeightSearch) ([]*User, error)
+	ReduceNumberOfDatesOfUserAndMatchesTrx(ctx context.Context, input *ReduceNumberOfDatesOfUserAndMatchesTrx) error
 }
 
 type UsersMaleMemDB interface {

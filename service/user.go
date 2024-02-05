@@ -175,8 +175,9 @@ func (u *UserService) listMatchesByUserId(ctx context.Context, input *listMatche
 		if input.ReduceNumberOfDates {
 			// error don't affect the response
 			u.reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(ctx, &reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZeroType{
-				Users:      matches,
-				UsersMemDb: u.usersFemaleMemDB,
+				User:       user,
+				Matches:    matches,
+				UsersMemDb: u.usersMaleMemDB,
 			})
 		}
 	case domain.USER_GENDER_FEMALE:
@@ -190,8 +191,9 @@ func (u *UserService) listMatchesByUserId(ctx context.Context, input *listMatche
 		if input.ReduceNumberOfDates {
 			// error don't affect the response
 			u.reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(ctx, &reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZeroType{
-				Users:      matches,
-				UsersMemDb: u.usersMaleMemDB,
+				User:       user,
+				Matches:    matches,
+				UsersMemDb: u.usersFemaleMemDB,
 			})
 		}
 	}
@@ -218,23 +220,29 @@ func (u *UserService) getUserById(ctx context.Context, id uuid.UUID) (*domain.Us
 }
 
 type reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZeroType struct {
-	Users      []*domain.User
+	User    *domain.User
+	Matches []*domain.User
+
 	UsersMemDb domain.UsersMemDB
 }
 
 func (u *UserService) reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(ctx context.Context, input *reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZeroType) error {
-	updateUsers := []*domain.UsersMemDbUpdate{}
-	deleteUserIds := []uuid.UUID{}
+	trxParams := &domain.ReduceNumberOfDatesOfUserAndMatchesTrx{
+		UpdateMatches:    []*domain.UsersMemDbUpdate{},
+		DeleteMatchesIds: []uuid.UUID{},
+	}
 
-	for _, e := range input.Users {
+	for _, e := range input.Matches {
 		e.RemainNumberOfDates -= 1
+		input.User.RemainNumberOfDates -= 1
+
 		if e.RemainNumberOfDates <= 0 {
 			e.RemainNumberOfDates = 0
-			deleteUserIds = append(deleteUserIds, e.Id)
+			trxParams.DeleteMatchesIds = append(trxParams.DeleteMatchesIds, e.Id)
 			continue
 		}
 
-		updateUsers = append(updateUsers, &domain.UsersMemDbUpdate{
+		trxParams.UpdateMatches = append(trxParams.UpdateMatches, &domain.UsersMemDbUpdate{
 			Id:                  e.Id,
 			Name:                e.Name,
 			Height:              e.Height,
@@ -242,16 +250,22 @@ func (u *UserService) reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(ctx c
 		})
 	}
 
-	if len(updateUsers) > 0 {
-		if err := input.UsersMemDb.UpdateBatch(ctx, updateUsers); err != nil {
-			return err
+	if input.User.RemainNumberOfDates > 0 {
+		trxParams.UserUpdate = &domain.UsersMemDbUpdate{
+			Id:                  input.User.Id,
+			Name:                input.User.Name,
+			Height:              input.User.Height,
+			RemainNumberOfDates: input.User.RemainNumberOfDates,
+		}
+	} else {
+		trxParams.UserDeleteId = uuid.NullUUID{
+			Valid: true,
+			UUID:  input.User.Id,
 		}
 	}
 
-	if len(deleteUserIds) > 0 {
-		if err := input.UsersMemDb.DeleteByIds(ctx, deleteUserIds); err != nil {
-			return err
-		}
+	if err := input.UsersMemDb.ReduceNumberOfDatesOfUserAndMatchesTrx(ctx, trxParams); err != nil {
+		return err
 	}
 
 	return nil

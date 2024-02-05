@@ -316,6 +316,7 @@ func TestUserService_reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(t *tes
 	}
 
 	ctx := context.Background()
+	userId := uuid.New()
 	updateUserId := uuid.New()
 	deleteUserId := uuid.New()
 
@@ -329,11 +330,18 @@ func TestUserService_reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(t *tes
 			args: args{
 				ctx: ctx,
 				input: &reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZeroType{
-					Users: []*domain.User{
+					User: &domain.User{
+						Id:                  userId,
+						Name:                "user",
+						Height:              160,
+						Gender:              domain.USER_GENDER_FEMALE,
+						RemainNumberOfDates: 11,
+					},
+					Matches: []*domain.User{
 						{
 							Id:                  updateUserId,
 							Name:                "update user",
-							Height:              100,
+							Height:              170,
 							Gender:              domain.USER_GENDER_MALE,
 							RemainNumberOfDates: 11,
 						},
@@ -347,11 +355,18 @@ func TestUserService_reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(t *tes
 			args: args{
 				ctx: ctx,
 				input: &reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZeroType{
-					Users: []*domain.User{
+					User: &domain.User{
+						Id:                  userId,
+						Name:                "user",
+						Height:              160,
+						Gender:              domain.USER_GENDER_FEMALE,
+						RemainNumberOfDates: 11,
+					},
+					Matches: []*domain.User{
 						{
 							Id:                  deleteUserId,
 							Name:                "delete user",
-							Height:              100,
+							Height:              170,
 							Gender:              domain.USER_GENDER_MALE,
 							RemainNumberOfDates: 1,
 						},
@@ -365,11 +380,18 @@ func TestUserService_reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(t *tes
 			args: args{
 				ctx: ctx,
 				input: &reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZeroType{
-					Users: []*domain.User{
+					User: &domain.User{
+						Id:                  userId,
+						Name:                "user",
+						Height:              180,
+						Gender:              domain.USER_GENDER_MALE,
+						RemainNumberOfDates: 11,
+					},
+					Matches: []*domain.User{
 						{
 							Id:                  updateUserId,
 							Name:                "update user",
-							Height:              100,
+							Height:              160,
 							Gender:              domain.USER_GENDER_FEMALE,
 							RemainNumberOfDates: 11,
 						},
@@ -383,11 +405,18 @@ func TestUserService_reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(t *tes
 			args: args{
 				ctx: ctx,
 				input: &reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZeroType{
-					Users: []*domain.User{
+					User: &domain.User{
+						Id:                  userId,
+						Name:                "user",
+						Height:              180,
+						Gender:              domain.USER_GENDER_MALE,
+						RemainNumberOfDates: 11,
+					},
+					Matches: []*domain.User{
 						{
 							Id:                  deleteUserId,
 							Name:                "delete user",
-							Height:              100,
+							Height:              160,
 							Gender:              domain.USER_GENDER_FEMALE,
 							RemainNumberOfDates: 1,
 						},
@@ -404,45 +433,92 @@ func TestUserService_reduceUserNumberOfDatesAndDeleteUserWhenBecomeToZero(t *tes
 
 			switch tt.name {
 			case "male_update":
-				mockMaleMemDB.EXPECT().UpdateBatch(
+				mockMaleMemDB.EXPECT().ReduceNumberOfDatesOfUserAndMatchesTrx(
 					tt.args.ctx,
-					[]*domain.UsersMemDbUpdate{{
-						Id:                  tt.args.input.Users[0].Id,
-						Name:                tt.args.input.Users[0].Name,
-						Height:              tt.args.input.Users[0].Height,
-						RemainNumberOfDates: tt.args.input.Users[0].RemainNumberOfDates - 1,
-					}},
+					&domain.ReduceNumberOfDatesOfUserAndMatchesTrx{
+						UserUpdate: &domain.UsersMemDbUpdate{
+							Id:                  tt.args.input.User.Id,
+							Name:                tt.args.input.User.Name,
+							Height:              tt.args.input.User.Height,
+							RemainNumberOfDates: tt.args.input.User.RemainNumberOfDates - 1,
+						},
+						UserDeleteId: uuid.NullUUID{},
+						UpdateMatches: []*domain.UsersMemDbUpdate{
+							{
+								Id:                  tt.args.input.Matches[0].Id,
+								Name:                tt.args.input.Matches[0].Name,
+								Height:              tt.args.input.Matches[0].Height,
+								RemainNumberOfDates: tt.args.input.Matches[0].RemainNumberOfDates - 1,
+							},
+						},
+						DeleteMatchesIds: []uuid.UUID{},
+					},
 				).Return(nil)
 
 				tt.args.input.UsersMemDb = mockMaleMemDB
 
 			case "male_delete":
-				mockMaleMemDB.EXPECT().DeleteByIds(
+				mockMaleMemDB.EXPECT().ReduceNumberOfDatesOfUserAndMatchesTrx(
 					tt.args.ctx,
-					[]uuid.UUID{tt.args.input.Users[0].Id},
+					&domain.ReduceNumberOfDatesOfUserAndMatchesTrx{
+						UserUpdate: &domain.UsersMemDbUpdate{
+							Id:                  tt.args.input.User.Id,
+							Name:                tt.args.input.User.Name,
+							Height:              tt.args.input.User.Height,
+							RemainNumberOfDates: tt.args.input.User.RemainNumberOfDates - 1,
+						},
+						UserDeleteId:  uuid.NullUUID{},
+						UpdateMatches: []*domain.UsersMemDbUpdate{},
+						DeleteMatchesIds: []uuid.UUID{
+							tt.args.input.Matches[0].Id,
+						},
+					},
 				).Return(nil)
 
 				tt.args.input.UsersMemDb = mockMaleMemDB
 
 			case "female_update":
-				mockFemaleMemDB.EXPECT().UpdateBatch(
+				mockFemaleMemDB.EXPECT().ReduceNumberOfDatesOfUserAndMatchesTrx(
 					tt.args.ctx,
-					[]*domain.UsersMemDbUpdate{{
-						Id:                  tt.args.input.Users[0].Id,
-						Name:                tt.args.input.Users[0].Name,
-						Height:              tt.args.input.Users[0].Height,
-						RemainNumberOfDates: tt.args.input.Users[0].RemainNumberOfDates - 1,
-					}},
+					&domain.ReduceNumberOfDatesOfUserAndMatchesTrx{
+						UserUpdate: &domain.UsersMemDbUpdate{
+							Id:                  tt.args.input.User.Id,
+							Name:                tt.args.input.User.Name,
+							Height:              tt.args.input.User.Height,
+							RemainNumberOfDates: tt.args.input.User.RemainNumberOfDates - 1,
+						},
+						UserDeleteId: uuid.NullUUID{},
+						UpdateMatches: []*domain.UsersMemDbUpdate{
+							{
+								Id:                  tt.args.input.Matches[0].Id,
+								Name:                tt.args.input.Matches[0].Name,
+								Height:              tt.args.input.Matches[0].Height,
+								RemainNumberOfDates: tt.args.input.Matches[0].RemainNumberOfDates - 1,
+							},
+						},
+						DeleteMatchesIds: []uuid.UUID{},
+					},
 				).Return(nil)
 
 				tt.args.input.UsersMemDb = mockFemaleMemDB
 
 			case "female_delete":
-				mockFemaleMemDB.EXPECT().DeleteByIds(
+				mockFemaleMemDB.EXPECT().ReduceNumberOfDatesOfUserAndMatchesTrx(
 					tt.args.ctx,
-					[]uuid.UUID{tt.args.input.Users[0].Id},
+					&domain.ReduceNumberOfDatesOfUserAndMatchesTrx{
+						UserUpdate: &domain.UsersMemDbUpdate{
+							Id:                  tt.args.input.User.Id,
+							Name:                tt.args.input.User.Name,
+							Height:              tt.args.input.User.Height,
+							RemainNumberOfDates: tt.args.input.User.RemainNumberOfDates - 1,
+						},
+						UserDeleteId:  uuid.NullUUID{},
+						UpdateMatches: []*domain.UsersMemDbUpdate{},
+						DeleteMatchesIds: []uuid.UUID{
+							tt.args.input.Matches[0].Id,
+						},
+					},
 				).Return(nil)
-
 				tt.args.input.UsersMemDb = mockFemaleMemDB
 			}
 
