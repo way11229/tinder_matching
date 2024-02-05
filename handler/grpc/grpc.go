@@ -100,9 +100,11 @@ func (g *GrpcHandler) ListMatchesByUserId(ctx context.Context, input *pb.ListMat
 func (g *GrpcHandler) getGrpcCodeFromError(err error) codes.Code {
 	switch err {
 	case
-		domain.ErrorInternalServerError,
-		domain.ErrorRecordNotFound:
+		domain.ErrorInternalServerError:
 		return codes.Internal
+	case
+		domain.ErrorRecordNotFound:
+		return codes.NotFound
 	case
 		domain.ErrorMissRequiredParameters,
 		domain.ErrorUserIdInvalid,
